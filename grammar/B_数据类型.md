@@ -65,6 +65,63 @@ function b64Decode(str) {
 b64Encode('你好') // "JUU0JUJEJUEwJUU1JUE1JUJE"
 b64Decode('JUU0JUJEJUEwJUU1JUE1JUJE') // "你好"
 ```
-  
 
+# 闭包 (closure)
+在JS中，只有函数内部的子函数才能读取内部变量，因此可以把闭包简单理解成“定义在一个函数内部的函数”。闭包的最大特点就是可以“记住”诞生的环境。在本质上，闭包就是将函数内部和函数外部连接起来的一座桥梁。
 
+**功能1**：读取外层函数内部的变量
+
+JavaScript 语言具有"链式作用域"结构（chain scope），子对象会一级一级地向上寻找所有父对象的变量。样例实现了在`f1`外部读取其内部变量`n`。  
+```js
+function f1() {
+  var n = 999;
+  function f2() {
+    console.log(n);
+  }
+  return f2;
+}
+
+var result = f1();
+result(); // 999
+```  
+
+**功能2**：将外层函数内部的变量一直保存在内存中  
+```js
+funciton createIncrementor(start) {
+    return function() {
+        return start++;
+    };
+}
+
+var inc = createIncrementor(5)
+
+inc()   // 5
+inc()   // 6
+inc()   // 7
+```  
+闭包（`inc`）用到了外层变量（`start`），导致外层函数（`createIncrementor`）不能从内存释放，使得函数`createIncrementor`的内部环境一直存在。所以，闭包可以看作是函数内部作用域的一个接口。
+
+**功能3**：封装对象的私有属性和私有方法
+```js
+function Person(name) {
+  var _age;
+  function setAge(n) {
+    _age = n;
+  }
+  function getAge() {
+    return _age;
+  }
+
+  return {
+    name: name,
+    getAge: getAge,
+    setAge: setAge
+  };
+}
+
+var p1 = Person('张三');
+p1.setAge(25);
+p1.getAge() // 25
+```
+
+函数`Person`的内部变量`_age`，通过闭包`getAge`和`setAge`，变成了返回对象`p1`的私有变量。
