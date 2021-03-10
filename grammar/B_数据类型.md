@@ -125,3 +125,22 @@ p1.getAge() // 25
 ```
 
 函数`Person`的内部变量`_age`，通过闭包`getAge`和`setAge`，变成了返回对象`p1`的私有变量。
+
+# 立即调用函数表达式（IIFE）
+JS 规定，如果function关键字出现在行首，一律解释成语句（statement）而非表达式（expression）。通常情况下，只对匿名函数使用“立即执行的函数表达式”。目的有两个：
+1. 不必为函数命名，避免全局污染
+2. IIFE内部形成了一个单独的作用域，可以封装一些外部无法读取的私有变量  
+
+```js
+// 写法一
+var tmp = newData;
+processData(tmp);
+storeData(tmp);
+
+// 写法二：完全避免了污染全局变量
+(function(){
+  var tmp = newData;
+  processData(tmp);
+  storeData(tmp);
+})()
+```
