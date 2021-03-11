@@ -25,3 +25,104 @@ type.isObject({}) // true
 type.isNumber(NaN) // true
 type.isRegExp(/abc/) // true
 ```
+
+# 元属性
+属性描述对象的各个属性称为“元属性”，因为它们可以看作是控制属性的属性。
+- `value`属性是对象属性的值
+- `writable`属性决定了`value`是否可以被改变
+    ```js
+    var proto = Object.defineProperty({}, 'foo', {
+        value: 'a',
+        writable: false
+    });
+    
+    // obj继承原型对象proto
+    var obj = Object.create(proto);
+
+    obj.foo = 'b';
+    obj.foo // 'a'
+
+    // 可以通过覆盖属性描述对象来规避这一限制。原因是这种情况下，原型链会被完全忽视。
+    Object.defineProperty(obj, 'foo', {
+        value: 'b'
+    });
+    obj.foo // 'b'
+    ```
+- `enumerable` 表示目标属性是否可遍历  
+    `for...in` 循环是基于 `in` 运算符的，但是 `in` 运算符不管某个属性是对象自身的还是继承的，都会返回 `true`。这显然不太合理，因此后来引入 `可遍历性` 的概念，只有可遍历的属性才会被遍历，同时还规定继承的原生属性都是不可遍历的，以保证 `for...in` 循环的可用性。  
+    具体说，`for..in循环`、`Object.keys方法`、`JSON.stringify方法`不会取到 `enumerable` 为 `false` 的属性。因此可以用来设置“秘密”属性，如果对象的JSON格式输出要排除某些属性，就可以把这些属性的`enumerable`设置为`false`。
+- `configurable`决定了是否可以修改属性描述对象，也决定了目标属性是否可以被删除。  
+
+# 存取器
+写法一：属性`p`的`configurable`和`enumerable`都为`false`，从而导致属性`p`是不可遍历的。
+```js
+var obj = Object.defineProperty({}, 'p', {
+    get: function(){
+        return 'getter';
+    },
+    set: function(value){
+        console.log('setter: '+ value);
+    }
+});
+
+obj.p // "getter"
+obj.p = 123 // "setter: 123"
+```
+
+写法二（更常用）：属性`p`的`configurable`和`enumerable`都为true，因此属性p是可遍历的
+```js
+var obj = {
+    get p() {
+        return 'getter';
+    },
+    set p(value) {
+        console.log('setter: ' + value);
+    }
+}
+```
+
+取值函数`get`不能接受参数，存值函数`set`只能接受一个参数（即属性的值）。存储器通常用于属性的值依赖对象内部数据的场合。例如：
+```js
+var obj = {
+    $n : 5,
+    get next(){return this.$n++},
+    set next(n){
+        if(n>this.$n) this.$n = n;
+        else throw new Error('新的值必须大于当前值')
+    }
+}
+
+obj.next // 5
+
+obj.next = 10;
+obj.next // 10;
+
+obj.next = 5;
+```
+
+# 对象的拷贝
+```js
+var extend = function(to, from){
+    for(var property in from){
+        // 用来过滤掉继承的属性，因为getOwnPropertyDescriptor读不到继承属性的属性描述对象
+        if(!from.hasOwnPropertyproperty(property)) continue;
+        Object.defineProperty(
+            to,
+            property,
+            Object.getOwnPropertyDescriptor(from, property)
+        );
+    }
+    return to;
+}
+
+extend({}, {get a(){return 1}}).a // 1
+```
+
+# 对象控制状态
+- `Object.preventExtensions()`使对象无法添加新的属性
+- `Object.seal()`使对象无法添加也无法删除属性
+- `Object.freeze()`使对象无法添加、删除和改变属性，使对象实际变成常量  
+
+上述方法锁定对象可写性有两个局限：
+- 可以通过改变原型对象，来为对象增加属性
+- 只能冻结属性指向的对象，而不能冻结对象本身的内容
