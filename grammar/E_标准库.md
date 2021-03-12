@@ -126,3 +126,54 @@ extend({}, {get a(){return 1}}).a // 1
 上述方法锁定对象可写性有两个局限：
 - 可以通过改变原型对象，来为对象增加属性
 - 只能冻结属性指向的对象，而不能冻结对象本身的内容
+
+# 自定义排序
+如果自定义排序函数的返回值大于0，表示第一个成员排在第二个成员后面；其他情况下，都是第一个元素排在第二个元素前面。
+```js
+[
+  { name: "张三", age: 30 },
+  { name: "李四", age: 24 },
+  { name: "王五", age: 28  }
+].sort(function (o1, o2) {
+  return o1.age - o2.age;
+})
+```
+
+# `map()` 函数和`forEach()`函数
+`map()`将数组的所有成员依次传入参数函数，然后把每一次的执行结果组成一个新数组返回。`map` 方法可以接收两个参数：
+- 第一个参数为自定义函数，该函数调用时，map方法向它传入三个参数：当前成员、当前位置和数组本身
+- 第二个参数用来用来绑定回调函数内部的`this`变量  
+  ```js
+  var arr = ['a', 'b', 'c'];
+    [1, 2].map(function (e) {
+    return this[e];
+    }, arr)
+    // ['b', 'c']
+  ```
+`forEach()`和`map()`的区别在于前者不返回值，只用来操作数据。  
+
+# Array其他实例方法
+- `filter()`
+- `some()`, `every()`
+- `reduce()`, `reduceRight()`
+- `indexOf()`, `lastIndexOf()`
+
+# 数组方法的链式使用
+```js
+var users = [
+  {name: 'tom', email: 'tom@example.com'},
+  {name: 'peter', email: 'peter@example.com'}
+];
+
+users
+.map(function (user) {
+  return user.email;
+})
+.filter(function (email) {
+  return /^t/.test(email);
+})
+.forEach(function (email) {
+  console.log(email);
+});
+// "tom@example.com"
+```  
