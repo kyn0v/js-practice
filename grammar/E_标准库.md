@@ -177,3 +177,17 @@ users
 });
 // "tom@example.com"
 ```  
+
+# Number 添加自定义方法
+```js
+Number.prototype.iterate = function () {
+  var result = [];
+  for (var i = 0; i <= this; i++) {
+    result.push(i);
+  }
+  return result;
+};
+
+(8).iterate()
+// [0, 1, 2, 3, 4, 5, 6, 7, 8]
+```
