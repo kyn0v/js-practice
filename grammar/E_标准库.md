@@ -191,3 +191,64 @@ Number.prototype.iterate = function () {
 (8).iterate()
 // [0, 1, 2, 3, 4, 5, 6, 7, 8]
 ```
+
+# RegExp 对象
+- `exec()`+`g`：实现多次匹配
+  ```js
+  var reg = /a/g;
+  var str = 'abc_abc_abc'
+
+  while(true){
+    var match = reg.exec(str);
+    if(!match) break;
+    console.log('#' + match.index + ':'  + match[0]);
+  }
+  ```
+
+- `String.prototype.replace() `
+  ```js
+  // 例1：消除首位空格
+  var str = '  #id div.class  '
+  str.replace(/^\s+|\s+$/g, '')
+  // "#id div.class"
+
+  // 例2：$指代所替换的内容
+  'hello world'.replace(/(\w+)\s(\w+)/, '$2 $1')
+  // "world hello"(将匹配的组互换位置)
+  
+  'abc'.replace('b', '[$`-$&-$\']')
+  // "a[a-b-c]c"（改写匹配的值）
+
+  // 例3：函数作为参数，将匹配内容替换为函数返回值
+  '3 and 5'.replace(/[0-9]+/g, function (match){
+    return match * 2;
+  })
+  // "6 and 10"
+
+  var a = 'The quick brown fox jumped over the lazy dog.';
+  var pattern = /quick|brown|lazy/ig;
+  a.replace(pattern, function replacer(match) {
+    return match.toUpperCase();
+  });
+  // "The QUICK BROWN fox jumped over the LAZY dog."
+
+  // 例4：网页模板替换实例
+  var prices = {
+    'p1': '$1.99',
+    'p2': '$9.99',
+    'p3': '$5.00'
+  };
+  var template = '<span id="p1"></span>'
+    + '<span id="p2"></span>'
+    + '<span id="p3"></span>';
+  template.replace(
+    /(<span id=")(.*?)(">)(<\/span>)/g,
+    function(match, $1, $2, $3, $4){
+      return $1 + $2 + $3 + prices[$2] + $4;
+    }
+  );
+  // "<span id="p1">$1.99</span><span id="p2">$9.99</span><span id="p3">$5.00</span>"
+
+  // 注：正则默认是贪婪匹配
+  ```
+  
