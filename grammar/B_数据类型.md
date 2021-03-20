@@ -127,7 +127,8 @@ p1.getAge() // 25
 函数`Person`的内部变量`_age`，通过闭包`getAge`和`setAge`，变成了返回对象`p1`的私有变量。
 
 # 立即调用函数表达式（IIFE）
-JS 规定，如果function关键字出现在行首，一律解释成语句（statement）而非表达式（expression）。通常情况下，只对匿名函数使用“立即执行的函数表达式”。目的有两个：
+JS 规定，如果function关键字出现在行首，一律解释成语句（statement）而非表达式（expression）。  
+通常情况下，只对匿名函数使用“立即执行的函数表达式”。目的有两个：
 1. 不必为函数命名，避免全局污染
 2. IIFE内部形成了一个单独的作用域，可以封装一些外部无法读取的私有变量  
 
@@ -143,4 +144,49 @@ storeData(tmp);
   processData(tmp);
   storeData(tmp);
 })()
+```
+
+# `for...in`循环和数组的遍历
+由于`for...in`不仅会遍历数组所有的数字键，还会遍历非数字键。因此推荐使用`for`循环或`while`循环遍历。
+```js
+var a = [1,2,3];
+a.foo = true;
+
+for(var key in a){
+  console.log(key);
+}
+// 1
+// 2
+// 3
+// foo
+
+for(var i = 0; i < a.length; i++) {
+  console.log(a[i]);
+}
+// 1
+// 2
+// 3
+
+var i = 0;
+while (i < a.length) {
+  console.log(a[i]);
+  i++;
+}
+```
+
+# 类似数组的对象
+如果一个对象所有键名都是自然数，并且有`length`属性，就称为`array-like object`。  
+常见的有：函数的arguments对象、大多数 DOM 元素集、字符串。  
+通过数组的slice方法，可以将它们转换为真正的数组:
+```js
+var arr = Array.prototype.slice.call(arrayLike);
+```
+
+另外，还可以调用call()，把数组的forEach()方法嫁接到arrayLike上面调用，但是这比使用数组原生的forEach要慢：
+```js
+function print(value, index) {
+  console.log(index + ' : ' + value);
+}
+
+Array.prototype.forEach.call(arrayLike, print);
 ```
