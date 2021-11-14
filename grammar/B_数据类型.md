@@ -101,6 +101,17 @@ inc()   // 7
 ```  
 闭包（`inc`）用到了外层变量（`start`），导致外层函数（`createIncrementor`）不能从内存释放，使得函数`createIncrementor`的内部环境一直存在。所以，闭包可以看作是函数内部作用域的一个接口。
 
+```js
+function makeAdder(a){
+  return funciton(b){
+    return a + b;
+  }
+}
+var add5 = makeAdder(5);
+var add10 = makeAdder(20);
+add5(6); //11
+add(7); //27
+
 **功能3**：封装对象的私有属性和私有方法
 ```js
 function Person(name) {
